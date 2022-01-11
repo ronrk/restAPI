@@ -69,12 +69,56 @@ router.post(
 
 router.put(
   "/:id",
-  asyncHandler(async (req, res) => {})
+  authenticateUser,
+  asyncHandler(async (req, res) => {
+    try {
+      const course = await Course.findByPk(req.params.id);
+      if (req.currentUser.id === course.userId) {
+        await course.update(req.body);
+        res.status(204).location(`/${req.params.id}`).end();
+      } else {
+        res.json({ msg: "You cannot update this course" });
+      }
+    } catch (error) {
+      console.log("ERROR: ", error);
+      if (
+        error.name === "SequelizeValidationError" ||
+        error.name === "SequelizeUniqueConstraintError"
+      ) {
+        const errors = error.errors.map((err) => err.message);
+        res.status(400).json({ errors });
+      } else {
+        throw error;
+      }
+    }
+  })
 );
 
 router.delete(
   "/:id",
-  asyncHandler(async (req, res) => {})
+  authenticateUser,
+  asyncHandler(async (req, res) => {
+    try {
+      const course = await Course.findByPk(req.params.id);
+      if (req.currentUser.id === course.userId) {
+        await course.destroy();
+        res.status(204).location("/").end();
+      } else {
+        res.json({ msg: "You cannot destroy this record" });
+      }
+    } catch (error) {
+      console.log("ERROR: ", error);
+      if (
+        error.name === "SequelizeValidationError" ||
+        error.name === "SequelizeUniqueConstraintError"
+      ) {
+        const errors = error.errors.map((err) => err.message);
+        res.status(400).json({ errors });
+      } else {
+        throw error;
+      }
+    }
+  })
 );
 
 module.exports = router;
