@@ -7,10 +7,11 @@ const router = express.Router();
 
 router.get(
   "/",
+  authenticateUser,
   asyncHandler(async (req, res) => {
-    const users = await User.findAll();
+    const user = req.currentUser;
     res.json({
-      users,
+      user,
     });
   })
 );

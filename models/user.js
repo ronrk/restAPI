@@ -43,10 +43,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          len: {
+          /*           len: {
             args: [8, 20],
-            msg: "The password should be between 8 and 20 characters in length",
-          },
+            msg: "your password musg be between 8-20 char length",
+          }, */
           notNull: {
             msg: "An password is required",
           },

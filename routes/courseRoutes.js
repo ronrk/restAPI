@@ -5,53 +5,77 @@ const { User, Course } = require("../models");
 
 const router = express.Router();
 
-router.get("/", asyncHandler(async(req, res) => {
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
     const courses = await Course.findAll({
-        include: {
-            model: User,
-            as: 'Student'
-        }
+      include: {
+        model: User,
+        as: "Student",
+      },
     });
-    console.log('KURSSS', courses)
+    console.log("KURSSS", courses);
     res.status(200).json({
-        courses
-    })
-}));
+      courses,
+    });
+  })
+);
 
-router.get('/:id', asyncHandler(async(req, res) => {
+router.get(
+  "/:id",
+  asyncHandler(async (req, res) => {
     const course = await Course.findOne({
-        where: {
-            id: req.params.id,
-        },
-        include: {
-            model: User,
-            as: 'Student'
-        }
-    })
+      where: {
+        id: req.params.id,
+      },
+      include: {
+        model: User,
+        as: "Student",
+      },
+    });
     res.status(200).json({
-        course
-    })
-}))
+      course,
+    });
+  })
+);
 
-router.post('/', asyncHandler(async(req, res) => {
+router.post(
+  "/",
+  authenticateUser,
+  asyncHandler(async (req, res) => {
     try {
-        const course = await Course.create({
-            title: req.body.title,
-            description: req.body.description,
-            estimatedTime: req.body.estimatedTime,
-            materialsNeeded: req.body.materialsNeeded
-        })
+      const course = await Course.create({
+        title: req.body.title,
+        description: req.body.description,
+        estimatedTime: req.body.estimatedTime,
+        materialsNeeded: req.body.materialsNeeded,
+        userId: req.currentUser.id,
+      });
+      res.status(201).location(`/${course.id}`).end();
     } catch (error) {
-        console.log('ERROR: ', error)
-        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
-            const errors = error.errors.map((err) => err.message);
-            res.status(400).json({ errors });
-        } else {
-            throw error
-        }
+      console.log("ERROR: ", error);
+      if (
+        error.name === "SequelizeValidationError" ||
+        error.name === "SequelizeUniqueConstraintError"
+      ) {
+        const errors = error.errors.map((err) => err.message);
+        res.status(400).json({ errors });
+      } else {
+        throw error;
+      }
     }
-}))
+  })
+);
 
+router.put(
+  "/:id",
+  asyncHandler(async (req, res) => {})
+);
+
+router.delete(
+  "/:id",
+  asyncHandler(async (req, res) => {})
+);
 
 module.exports = router;
 
