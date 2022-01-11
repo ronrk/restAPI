@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs/dist/bcrypt");
 const { Model, DataTypes } = require("sequelize");
 const { sequelize } = require(".");
 
@@ -7,15 +8,53 @@ module.exports = (sequelize) => {
     {
       firstName: {
         type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: {
+            msg: "Pleas provide a first name",
+          },
+        },
       },
       lastName: {
         type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: {
+            msg: "Please provide a last name",
+          },
+        },
       },
       emailAddress: {
         type: DataTypes.STRING,
+        allowNull: false,
+        unique: {
+          msg: "The email you entered already exist",
+        },
+        validate: {
+          notNull: {
+            msg: "An email is required",
+          },
+          isEmail: {
+            msg: "Please provide a valid email address",
+          },
+        },
       },
       password: {
         type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          len: {
+            args: [8, 20],
+            msg: "The password should be between 8 and 20 characters in length",
+          },
+          notNull: {
+            msg: "An password is required",
+          },
+        },
+        set(val) {
+          const hashedPassword = bcrypt.hashSync(val, 10);
+          this.setDataValue("password", hashedPassword);
+        },
       },
     },
     { sequelize }
