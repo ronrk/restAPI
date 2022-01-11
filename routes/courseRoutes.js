@@ -1,26 +1,37 @@
 const express = require("express");
+
+//asyncHandler helper function
 const { asyncHandler } = require("../middleware/async-handler");
+//authntication user
 const { authenticateUser } = require("../middleware/auth-user");
+//import Model
 const { User, Course } = require("../models");
 
 const router = express.Router();
 
+//get all courses
 router.get(
   "/",
   asyncHandler(async (req, res) => {
     const courses = await Course.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
       include: {
         model: User,
         as: "Student",
+        attributes: {
+          exclude: ["password", "createdAt", "updatedAt"],
+        },
       },
     });
-    console.log("KURSSS", courses);
     res.status(200).json({
       courses,
     });
   })
 );
 
+//get specified course
 router.get(
   "/:id",
   asyncHandler(async (req, res) => {
@@ -28,9 +39,15 @@ router.get(
       where: {
         id: req.params.id,
       },
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
       include: {
         model: User,
         as: "Student",
+        attributes: {
+          exclude: ["password", "createdAt", "updatedAt"],
+        },
       },
     });
     res.status(200).json({
@@ -39,6 +56,7 @@ router.get(
   })
 );
 
+//create new course
 router.post(
   "/",
   authenticateUser,
@@ -67,6 +85,7 @@ router.post(
   })
 );
 
+//update exsit course
 router.put(
   "/:id",
   authenticateUser,
@@ -77,7 +96,9 @@ router.put(
         await course.update(req.body);
         res.status(204).location(`/${req.params.id}`).end();
       } else {
-        res.json({ msg: "You cannot update this course" });
+        res
+          .status(403)
+          .json({ error: "You cannot update course that you dont owned" });
       }
     } catch (error) {
       console.log("ERROR: ", error);
@@ -94,6 +115,7 @@ router.put(
   })
 );
 
+//remove exist course
 router.delete(
   "/:id",
   authenticateUser,
@@ -104,7 +126,9 @@ router.delete(
         await course.destroy();
         res.status(204).location("/").end();
       } else {
-        res.json({ msg: "You cannot destroy this record" });
+        res
+          .status(403)
+          .json({ error: "You cannot destroy a course that you dont owned" });
       }
     } catch (error) {
       console.log("ERROR: ", error);
@@ -122,39 +146,3 @@ router.delete(
 );
 
 module.exports = router;
-
-/* 
-router.get(
-  "/",
-  authenticateUser,
-  asyncHandler(async (req, res) => {
-    const user = req.currentUser;
-    res.json({
-      user,
-    });
-  })
-);
-
-router.post(
-  "/",
-  asyncHandler(async (req, res) => {
-    try {
-      await User.create(req.body);
-      res.status(201).json({
-        message: "Acount successfuly created",
-      });
-    } catch (error) {
-      console.log("ERROR!: ", error.name);
-      if (
-        error.name === "SequelizeValidationError" ||
-        error.name === "SequelizeUniqueConstraintError"
-      ) {
-        const errors = error.errors.map((err) => err.message);
-        res.status(400).json({ errors });
-      } else {
-        throw error;
-      }
-    }
-  })
-);
- */

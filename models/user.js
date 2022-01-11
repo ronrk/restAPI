@@ -2,6 +2,8 @@ const bcrypt = require("bcryptjs/dist/bcrypt");
 const { Model, DataTypes } = require("sequelize");
 const { sequelize } = require(".");
 
+///User Model
+
 module.exports = (sequelize) => {
   class User extends Model {}
   User.init(
@@ -43,10 +45,6 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          /*           len: {
-            args: [8, 20],
-            msg: "your password musg be between 8-20 char length",
-          }, */
           notNull: {
             msg: "An password is required",
           },
@@ -60,6 +58,7 @@ module.exports = (sequelize) => {
     { sequelize }
   );
 
+  //User association with modelse.Course one to many
   User.associate = (models) => {
     User.hasMany(models.Course, {
       as: "Student",

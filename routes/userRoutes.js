@@ -1,10 +1,14 @@
 const express = require("express");
+//asyncHandler helper function
 const { asyncHandler } = require("../middleware/async-handler");
+//authntication user
 const { authenticateUser } = require("../middleware/auth-user");
+//import Model
 const { User } = require("../models");
 
 const router = express.Router();
 
+//get all users
 router.get(
   "/",
   authenticateUser,
@@ -16,6 +20,7 @@ router.get(
   })
 );
 
+//create new user
 router.post(
   "/",
   asyncHandler(async (req, res) => {

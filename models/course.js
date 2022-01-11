@@ -1,6 +1,8 @@
 const { Model, DataTypes } = require("sequelize");
 const { sequelize } = require(".");
 
+///Course Model
+
 module.exports = (sequelize) => {
   class Course extends Model {}
   Course.init(
@@ -33,6 +35,7 @@ module.exports = (sequelize) => {
     { sequelize }
   );
 
+  //Course association with modelse.User one to one
   Course.associate = (models) => {
     Course.belongsTo(models.User, {
       as: "Student",
